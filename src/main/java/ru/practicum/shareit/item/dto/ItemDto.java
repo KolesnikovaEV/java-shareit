@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Set;
 
@@ -8,6 +9,8 @@ import java.util.Set;
  * TODO Sprint add-controllers.
  */
 @Data
+@RequiredArgsConstructor
+
 public class ItemDto {
     private Long id;
     private String name;
