@@ -2,9 +2,6 @@ package ru.practicum.shareit.item.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import java.util.Set;
 
@@ -12,9 +9,6 @@ import java.util.Set;
  * TODO Sprint add-controllers.
  */
 @Data
-@Getter
-@Setter
-@RequiredArgsConstructor
 
 public class Item {
     private Long id;

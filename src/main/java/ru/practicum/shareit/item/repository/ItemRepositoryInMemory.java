@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Qualifier("InMemory")
 @Slf4j
 public class ItemRepositoryInMemory implements ItemRepository {
-    Map<Long, Item> itemRepository = new HashMap<>();
+    private final Map<Long, Item> itemRepository = new HashMap<>();
     private Long generateId = 1L;
 
     @Override
@@ -31,7 +31,7 @@ public class ItemRepositoryInMemory implements ItemRepository {
     }
 
     @Override
-    public Item updateItem(Item item, boolean[] isUpdateField) {
+    public Item updateItem(Item item, List<Boolean> isUpdateField) {
         final Long inputId = item.getId();
         final String inputName = item.getName();
         final String inputDesc = item.getDescription();
@@ -39,13 +39,13 @@ public class ItemRepositoryInMemory implements ItemRepository {
 
         Item toUpdate = itemRepository.get(inputId);
 
-        if (isUpdateField[0]) {
+        if (isUpdateField.get(0)) {
             toUpdate.setName(inputName);
         }
-        if (isUpdateField[1]) {
+        if (isUpdateField.get(1)) {
             toUpdate.setDescription(inputDesc);
         }
-        if (isUpdateField[2]) {
+        if (isUpdateField.get(2)) {
             toUpdate.setAvailable(inputAvailable);
         }
         itemRepository.put(inputId, toUpdate);
@@ -57,10 +57,6 @@ public class ItemRepositoryInMemory implements ItemRepository {
         return itemRepository.get(itemId);
     }
 
-    @Override
-    public void deleteItem(Long itemId) {
-
-    }
 
     @Override
     public List<Item> searchItems(String text) {

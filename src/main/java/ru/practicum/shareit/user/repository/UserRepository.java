@@ -11,7 +11,7 @@ public interface UserRepository {
 
     List<User> getAllUsers();
 
-    User updateUser(User user, boolean[] isUpdateFields);
+    User updateUser(User user, List<Boolean> isUpdateFields);
 
     void removeUser(Long id);
 

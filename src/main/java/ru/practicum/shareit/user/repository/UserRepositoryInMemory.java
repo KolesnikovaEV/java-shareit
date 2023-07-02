@@ -38,17 +38,17 @@ public class UserRepositoryInMemory implements UserRepository {
     }
 
     @Override
-    public User updateUser(User userToUpdate, boolean[] isUpdateFields) {
+    public User updateUser(User userToUpdate, List<Boolean> isUpdateFields) {
         final Long inputId = userToUpdate.getId();
         final String inputName = userToUpdate.getName();
         final String inputEmail = userToUpdate.getEmail();
 
         User oldUser = userRepository.get(inputId);
 
-        if (isUpdateFields[0]) {
+        if (isUpdateFields.get(0)) {
             oldUser.setName(inputName);
         }
-        if (isUpdateFields[1]) {
+        if (isUpdateFields.get(1)) {
             oldUser.setEmail(inputEmail);
         }
         userRepository.put(inputId, oldUser);

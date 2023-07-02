@@ -11,6 +11,9 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @Slf4j
 public class ValidationService {
@@ -23,12 +26,13 @@ public class ValidationService {
         this.userRepository = userRepository;
     }
 
-    public void checkUniqueEmailToCreate(User user) {
+    public void checkUniqueEmail(User user) {
         final String inputEmail = user.getEmail();
+        Long inputId = user.getId();
 
         Long idByEmail = userRepository.getUserIdByEmail(inputEmail);
         //Надо проверить уникальность почты.
-        if (idByEmail != null) {
+        if (idByEmail != null && !inputId.equals(idByEmail)) {
             String message = String.format("Updating User's email is impossible, email = %s " +
                     "belongs to User ID: %s.", inputEmail, userRepository.getUserById(idByEmail));
             log.info(message);
@@ -36,24 +40,6 @@ public class ValidationService {
         }
     }
 
-    public void checkUniqueEmailToUpdate(User user) {
-        final Long inputId = user.getId();
-        final String inputEmail = user.getEmail();
-
-        if (inputId == null) {
-            String message = "Updating User is impossible, User ID cannot be Null.";
-            log.info(message);
-            throw new NotFoundException(message);
-        }
-
-        final Long idByEmail = userRepository.getUserIdByEmail(inputEmail);
-        if (idByEmail != null && !inputId.equals(idByEmail)) {
-            String message = String.format("Updating User's email is impossible, email = %s " +
-                    "belongs to User ID = %d.", inputEmail, idByEmail);
-            log.info(message + " Incoming user: " + user);
-            throw new ConflictException(message);
-        }
-    }
 
     public User isExistUser(Long userId) {
         User result = userRepository.getUserById(userId);
@@ -73,7 +59,7 @@ public class ValidationService {
             log.info(error);
             throw new ValidationException(error);
         }
-        checkUniqueEmailToCreate(user);
+        checkUniqueEmail(user);
         final String name = user.getName();
         if (name == null || name.isBlank()) {
             String error = "Name cannot be empty.";
@@ -82,18 +68,17 @@ public class ValidationService {
         }
     }
 
-    public boolean[] checkFieldsForUpdate(User user) {
-        boolean[] result;
-        result = new boolean[2];
+    public List<Boolean> checkFieldsForUpdate(User user) {
+        List<Boolean> result = new ArrayList<>();
         final String name = user.getName();
         final String email = user.getEmail();
-        result[0] = (name != null) && !name.isBlank();
-        result[1] = (email != null) && !email.isBlank();
+        result.add((name != null) && !name.isBlank());
+        result.add((email != null) && !email.isBlank());
         if (email != null) {
-            checkUniqueEmailToUpdate(user);
+            checkUniqueEmail(user);
         }
 
-        if (result[0] || result[1]) {
+        if (result.contains(true)) {
             return result;
         }
         throw new ValidationException("All fields are 'null'.");
@@ -126,11 +111,11 @@ public class ValidationService {
         }
     }
 
-    public boolean[] checkFieldsForUpdateItem(Item item) {
-        boolean[] result = new boolean[3];
-        result[0] = (item.getName() != null) && (!item.getName().isBlank());
-        result[1] = (item.getDescription() != null) && !item.getDescription().isBlank();
-        result[2] = item.getAvailable() != null;
+    public List<Boolean> checkFieldsForUpdateItem(Item item) {
+        List<Boolean> result = new ArrayList<>();
+        result.add((item.getName() != null) && (!item.getName().isBlank()));
+        result.add((item.getDescription() != null) && !item.getDescription().isBlank());
+        result.add(item.getAvailable() != null);
         for (boolean b : result) {
             if (b) return result;
         }

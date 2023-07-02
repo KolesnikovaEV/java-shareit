@@ -14,6 +14,7 @@ import ru.practicum.shareit.validation.ValidationService;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -31,11 +32,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllItems(Long userId) {
-        List<ItemDto> allItemsDto = new ArrayList<>();
         List<Item> allItems = itemRepository.getAllItems(userId);
-        allItems.stream().map(mapper::toItemDto).forEach(allItemsDto::add);
         log.info("All items are shown");
-        return allItemsDto;
+        return allItems.stream().map(mapper::toItemDto).collect(Collectors.toList());
     }
 
     @Override
@@ -67,7 +66,7 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException(message);
         }
         validationService.isExistUser(ownerId);
-        boolean[] isUpdateFields = validationService.checkFieldsForUpdateItem(mapperItem);
+        List<Boolean> isUpdateFields = validationService.checkFieldsForUpdateItem(mapperItem);
         ItemDto result = mapper.toItemDto(itemRepository.updateItem(mapperItem, isUpdateFields));
         log.info("Item updated {}, id = {}", result.getName(), result.getId());
         return result;

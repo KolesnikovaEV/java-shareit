@@ -9,11 +9,9 @@ public interface ItemRepository {
 
     Item createItem(Long ownerId, Item item);
 
-    Item updateItem(Item item, boolean[] isUpdateField);
+    Item updateItem(Item item, List<Boolean> isUpdateField);
 
     Item getItemById(Long itemId);
-
-    void deleteItem(Long itemId);
 
     List<Item> searchItems(String text);
 }

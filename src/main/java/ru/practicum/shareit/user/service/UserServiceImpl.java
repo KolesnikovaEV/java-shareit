@@ -9,8 +9,8 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.validation.ValidationService;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -36,11 +36,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAllUsers() {
-        List<UserDto> allUsersDto = new ArrayList<>();
         List<User> allUsers = userRepository.getAllUsers();
-        allUsers.stream().map(mapper::toUserDto).forEach(allUsersDto::add);
         log.info("All users are shown");
-        return allUsersDto;
+        return allUsers.stream().map(mapper::toUserDto).collect(Collectors.toList());
     }
 
     @Override
@@ -58,7 +56,7 @@ public class UserServiceImpl implements UserService {
         userDto.setId(userId);
         User user = mapper.toUser(userDto);
         validationService.isExistUser(userId);
-        boolean[] isUpdateFields = validationService.checkFieldsForUpdate(user);
+        List<Boolean> isUpdateFields = validationService.checkFieldsForUpdate(user);
         log.info("User {} is updated", userId);
         User updatedUser = userRepository.updateUser(user, isUpdateFields);
         return mapper.toUserDto(updatedUser);
