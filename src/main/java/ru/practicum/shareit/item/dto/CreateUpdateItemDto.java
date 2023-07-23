@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import ru.practicum.shareit.validation.CreateObject;
 
 import javax.validation.constraints.NotBlank;
@@ -12,6 +11,11 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @Builder
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
+@AllArgsConstructor
 public class CreateUpdateItemDto {
     @NotBlank(groups = CreateObject.class)
     private String name;
