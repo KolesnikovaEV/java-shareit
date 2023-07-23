@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +39,7 @@ public class ItemServiceImpl implements ItemService {
         validationService.isExistUser(userId);
         List<Item> allItems = itemRepository.findAllByOwnerIdWithBookings(userId);
         log.info("All items are shown");
-        if (!allItems.isEmpty() && allItems.get(0).getOwner().getId() == userId) {
+        if (!allItems.isEmpty() && Objects.equals(allItems.get(0).getOwner().getId(), userId)) {
             return allItems.stream()
                     .map(ItemMapper::toItemWIthBookingDto)
                     .collect(Collectors.toList());
@@ -98,7 +99,7 @@ public class ItemServiceImpl implements ItemService {
         Item existItem = validationService.isExistItem(itemId);
 
         log.info("Item is shown");
-        if (existItem.getOwner().getId() == ownerId) {
+        if (Objects.equals(existItem.getOwner().getId(), ownerId)) {
             return ItemMapper.toItemWIthBookingDto(existItem);
         } else {
             return ItemMapper.toGetItemDtoFromItem(existItem);
