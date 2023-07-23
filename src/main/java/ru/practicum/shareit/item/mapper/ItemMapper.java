@@ -1,53 +1,106 @@
 package ru.practicum.shareit.item.mapper;
 
-import org.springframework.stereotype.Component;
-import ru.practicum.shareit.item.dto.ItemDto;
+import lombok.experimental.UtilityClass;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.Status;
+import ru.practicum.shareit.item.comment.CommentDto;
+import ru.practicum.shareit.item.comment.CommentDtoMapper;
+import ru.practicum.shareit.item.dto.CreateUpdateItemDto;
+import ru.practicum.shareit.item.dto.ItemForResponseDto;
+import ru.practicum.shareit.item.dto.ItemWithBookingDto;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.HashSet;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-@Component
+@UtilityClass
 public class ItemMapper {
-    public ItemDto toItemDto(Item item) {
-        if (item == null) {
-            return null;
+
+    public ItemForResponseDto toGetItemDtoFromItem(Item item) {
+        List<CommentDto> comments = new ArrayList<>();
+
+        if (item.getComments() != null) {
+            comments.addAll(item.getComments()
+                    .stream()
+                    .map(CommentDtoMapper::toCommentDto)
+                    .collect(Collectors.toSet()));
         }
 
-        ItemDto itemDto = new ItemDto();
-
-        itemDto.setId(item.getId());
-        itemDto.setName(item.getName());
-        itemDto.setDescription(item.getDescription());
-        itemDto.setAvailable(item.getAvailable());
-        itemDto.setOwner(item.getOwner());
-        itemDto.setRequest(item.getRequest());
-        Set<Long> set = item.getReviews();
-        if (set != null) {
-            itemDto.setReviews(new HashSet<Long>(set));
-        }
-
-        return itemDto;
+        return ItemForResponseDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .comments(comments)
+                .build();
     }
 
-    public static Item toItem(ItemDto itemDto) {
-        if (itemDto == null) {
-            return null;
-        }
+    public ItemForResponseDto toItemWIthBookingDto(Item item) {
+        LocalDateTime currentTime = LocalDateTime.now();
 
-        Item item = new Item();
+        ItemForResponseDto getItemDto = toGetItemDtoFromItem(item);
 
-        item.setId(itemDto.getId());
-        item.setName(itemDto.getName());
-        item.setDescription(itemDto.getDescription());
-        item.setAvailable(itemDto.getAvailable());
-        item.setOwner(itemDto.getOwner());
-        item.setRequest(itemDto.getRequest());
-        Set<Long> set = itemDto.getReviews();
-        if (set != null) {
-            item.setReviews(new HashSet<Long>(set));
-        }
+        Set<Booking> bookings = item.getBookings();
 
-        return item;
+        Booking lastBooking = bookings
+                .stream()
+                .sorted(orderByStartDateDesc)
+                .filter(t -> t.getStart().isBefore(currentTime) &&
+                        t.getStatus().equals(Status.APPROVED))
+                .findFirst()
+                .orElse(null);
+
+        Booking nextBooking = bookings
+                .stream()
+                .sorted(orderByStartDateAsc)
+                .filter(t -> t.getStart().isAfter(currentTime) &&
+                        t.getStatus().equals(Status.APPROVED))
+                .findFirst()
+                .orElse(null);
+
+        getItemDto.setLastBooking(BookingMapper.toBookingForItemDto(lastBooking));
+        getItemDto.setNextBooking(BookingMapper.toBookingForItemDto(nextBooking));
+
+        return getItemDto;
     }
+
+    public Item toGetItemFromCreateUpdateItemDto(CreateUpdateItemDto createUpdateItemDto) {
+        return Item.builder()
+                .name(createUpdateItemDto.getName())
+                .description(createUpdateItemDto.getDescription())
+                .available(createUpdateItemDto.getAvailable())
+                .build();
+    }
+
+    public ItemWithBookingDto toGetBookingDtoFromItem(Item item) {
+        return ItemWithBookingDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .build();
+    }
+
+    private static final Comparator<Booking> orderByStartDateDesc = (a, b) -> {
+        if (a.getStart().isAfter(b.getStart())) {
+            return -1;
+        } else if (a.getStart().isBefore(b.getStart())) {
+            return 1;
+        } else {
+            return 0;
+        }
+    };
+
+    private static final Comparator<Booking> orderByStartDateAsc = (a, b) -> {
+        if (a.getStart().isAfter(b.getStart())) {
+            return 1;
+        } else if (a.getStart().isBefore(b.getStart())) {
+            return -1;
+        } else {
+            return 0;
+        }
+    };
 }

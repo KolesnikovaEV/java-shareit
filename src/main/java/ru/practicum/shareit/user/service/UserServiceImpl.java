@@ -1,9 +1,14 @@
 package ru.practicum.shareit.user.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.user.dto.UserDto;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.ConflictException;
+import ru.practicum.shareit.user.dto.CreateUpdateUserDto;
+import ru.practicum.shareit.user.dto.UserForResponseDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -14,59 +19,65 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
+@Transactional
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ValidationService validationService;
-    private final UserMapper mapper;
-
-    public UserServiceImpl(@Qualifier("InMemory") UserRepository userRepository, UserMapper mapper,
-                           ValidationService validationService) {
-        this.userRepository = userRepository;
-        this.mapper = mapper;
-        this.validationService = validationService;
-    }
 
     @Override
-    public UserDto getUserById(Long id) {
+    @Transactional(readOnly = true)
+    public UserForResponseDto getUserById(Long id) {
+        User result = validationService.isExistUser(id);
+
         log.info("User {} is found", id);
-        validationService.isExistUser(id);
-        UserDto getUser = mapper.toUserDto(userRepository.getUserById(id));
-        return getUser;
+        return UserMapper.userForResponseDto(result);
     }
 
     @Override
-    public List<UserDto> getAllUsers() {
-        List<User> allUsers = userRepository.getAllUsers();
+    @Transactional(readOnly = true)
+    public List<UserForResponseDto> getAllUsers() {
+        List<User> allUsers = userRepository.findAll();
         log.info("All users are shown");
-        return allUsers.stream().map(mapper::toUserDto).collect(Collectors.toList());
+        return allUsers.stream().map(UserMapper::userForResponseDto).collect(Collectors.toList());
     }
 
     @Override
-    public UserDto createUser(UserDto userDto) {
+    public UserForResponseDto createUser(CreateUpdateUserDto createUpdateUserDto) {
         log.info("Creating User");
-        User user = mapper.toUser(userDto);
+        User user = UserMapper.toUserFromCreateUpdateUserDto(createUpdateUserDto);
         validationService.validateUserFields(user);
-        UserDto createdUser = mapper.toUserDto(userRepository.createUser(user));
-        log.info("User is created");
-        return createdUser;
+        try {
+            return UserMapper.userForResponseDto(userRepository.save(
+                    UserMapper.toUserFromCreateUpdateUserDto(createUpdateUserDto)));
+        } catch (ConstraintViolationException e) {
+            throw new ConflictException("User cannot be created");
+        }
     }
 
     @Override
-    public UserDto updateUser(Long userId, UserDto userDto) {
-        userDto.setId(userId);
-        User user = mapper.toUser(userDto);
-        validationService.isExistUser(userId);
-        List<Boolean> isUpdateFields = validationService.checkFieldsForUpdate(user);
-        log.info("User {} is updated", userId);
-        User updatedUser = userRepository.updateUser(user, isUpdateFields);
-        return mapper.toUserDto(updatedUser);
+    public UserForResponseDto updateUser(Long userId, CreateUpdateUserDto createUpdateUserDto) {
+        User userForUpdate = validationService.isExistUser(userId);
+        if (createUpdateUserDto.getName() != null && !createUpdateUserDto.getName().isBlank()) {
+            userForUpdate.setName(createUpdateUserDto.getName());
+        }
+        if (createUpdateUserDto.getEmail() != null && !createUpdateUserDto.getEmail().isBlank()) {
+            userForUpdate.setEmail(createUpdateUserDto.getEmail());
+        }
+        try {
+            return UserMapper.userForResponseDto(userRepository.saveAndFlush(userForUpdate));
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException("User cannot be updated");
+        }
+
     }
 
     @Override
     public void removeUser(Long id) {
         validationService.isExistUser(id);
+
         log.info("User {} is removed", id);
-        userRepository.removeUser(id);
+        userRepository.deleteById(id);
     }
 
 }
