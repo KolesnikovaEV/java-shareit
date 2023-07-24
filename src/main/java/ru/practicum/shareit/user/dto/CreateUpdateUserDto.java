@@ -1,6 +1,9 @@
 package ru.practicum.shareit.user.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.validation.CreateObject;
 import ru.practicum.shareit.validation.UpdateObject;
 
@@ -11,8 +14,6 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 public class CreateUpdateUserDto {
     @NotBlank(groups = {CreateObject.class}, message = "Name cannot be blank")
     private String name;
