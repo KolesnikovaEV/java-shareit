@@ -20,6 +20,10 @@ public class ErrorHandler {
             NotValidDateException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final RuntimeException e) {
+        log.debug("Получен статус {} {}. Причина: {}",
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                e.getMessage());
         return new ErrorResponse(e.getMessage()
         );
     }
@@ -43,6 +47,10 @@ public class ErrorHandler {
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handlePostNotFoundException(NotFoundException e) {
+        log.debug("Получен статус {} {}. Причина: {}",
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                e.getMessage());
         return new ErrorResponse(e.getMessage()
         );
     }
@@ -51,6 +59,10 @@ public class ErrorHandler {
     @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowable(Throwable e) {
+        log.debug("Получен статус {} {}. Причина: {}",
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                e.getMessage());
         return new ErrorResponse(
                 "Произошла непредвиденная ошибка: " + e.getMessage()
         );
@@ -59,6 +71,10 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ConflictException handleForConflict(ConflictException e) {
+        log.debug("Получен статус {} {}. Причина: {}",
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                e.getMessage());
         return new ConflictException("Произошел конфликт данных: " + e.getMessage());
     }
 }

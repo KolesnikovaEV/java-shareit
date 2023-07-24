@@ -9,9 +9,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.Set;
 
-/**
- * TODO Sprint add-controllers.
- */
+
 @Data
 @Entity
 @Table(name = "items", schema = "public")

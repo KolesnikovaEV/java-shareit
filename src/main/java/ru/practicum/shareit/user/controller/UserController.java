@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.CreateUpdateUserDto;
@@ -12,28 +13,24 @@ import ru.practicum.shareit.validation.UpdateObject;
 import javax.validation.Valid;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping(path = "/users")
 @Validated
+@RequiredArgsConstructor
+@Slf4j
 public class UserController {
     private final UserService userService;
 
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
     @GetMapping
     public List<UserForResponseDto> getAllUsers() {
+        log.info("Getting All Users");
         return userService.getAllUsers();
     }
 
     @PostMapping
     public UserForResponseDto createUser(@RequestBody @Valid @Validated(CreateObject.class)
                                          CreateUpdateUserDto createUpdateUserDto) {
+        log.info("Creating User");
         return userService.createUser(createUpdateUserDto);
     }
 
@@ -41,16 +38,19 @@ public class UserController {
     public UserForResponseDto updateUser(@PathVariable Long userId,
                                          @Validated(UpdateObject.class) @Valid
                                          @RequestBody CreateUpdateUserDto userToUpdate) {
+        log.info("Updating User: {}", userId);
         return userService.updateUser(userId, userToUpdate);
     }
 
     @GetMapping("/{userId}")
     public UserForResponseDto getUserById(@PathVariable Long userId) {
+        log.info("Getting User by User ID: {}", userId);
         return userService.getUserById(userId);
     }
 
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable Long userId) {
+        log.info("Deleting User: {}", userId);
         userService.removeUser(userId);
     }
 

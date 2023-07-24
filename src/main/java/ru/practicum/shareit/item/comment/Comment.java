@@ -8,6 +8,8 @@ import ru.practicum.shareit.user.model.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+import static ru.practicum.shareit.constant.Constants.DATE_PATTERN;
+
 @Data
 @Entity
 @Table(name = "feedbacks", schema = "public")
@@ -32,6 +34,6 @@ public class Comment {
     private User author;
 
     @Column(name = "created_date", nullable = false)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
     private LocalDateTime created;
 }
