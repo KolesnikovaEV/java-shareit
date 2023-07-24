@@ -1,5 +1,5 @@
 --set schema PUBLIC;
---DROP TABLE IF EXISTS users, items, bookings, feedbacks;
+DROP TABLE IF EXISTS users, items, bookings, feedbacks;
 
 CREATE TABLE IF NOT EXISTS users
 (

@@ -5,14 +5,16 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+import static ru.practicum.shareit.constant.Constants.DATE_PATTERN;
+
 @Data
 public class CreateBookingDto {
     private Long itemId;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
     private LocalDateTime start;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
     private LocalDateTime end;
 
 }

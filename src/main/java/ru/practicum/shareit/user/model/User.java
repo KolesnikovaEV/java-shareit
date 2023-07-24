@@ -4,9 +4,6 @@ import lombok.*;
 
 import javax.persistence.*;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Data
 @Entity
 @Table(name = "users", schema = "public")

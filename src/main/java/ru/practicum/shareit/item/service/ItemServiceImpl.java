@@ -17,7 +17,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.validation.ValidationService;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -122,11 +121,10 @@ public class ItemServiceImpl implements ItemService {
         }
         validationService.isExistUser(ownerId);
 
-        List<ItemForResponseDto> list = new ArrayList<>();
-        for (Item item : itemRepository.searchItems(text)) {
-            ItemForResponseDto addItem = ItemMapper.toGetItemDtoFromItem(item);
-            list.add(addItem);
-        }
+        List<ItemForResponseDto> list = itemRepository.searchItems(text)
+                .stream()
+                .map(ItemMapper::toGetItemDtoFromItem)
+                .collect(Collectors.toList());
         String message = String.format("Items are found '%s' by text: %s", list, text);
         log.info(message);
 
