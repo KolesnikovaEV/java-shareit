@@ -1,0 +1,20 @@
+package ru.practicum.shareit.booking.dto;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+import static ru.practicum.shareit.constant.Constants.DATE_PATTERN;
+
+@Data
+public class CreateBookingDto {
+    private Long itemId;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
+    private LocalDateTime start;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN)
+    private LocalDateTime end;
+
+}

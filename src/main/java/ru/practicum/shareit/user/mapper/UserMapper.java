@@ -1,37 +1,31 @@
 package ru.practicum.shareit.user.mapper;
 
-import org.springframework.stereotype.Component;
-import ru.practicum.shareit.user.dto.UserDto;
+import lombok.experimental.UtilityClass;
+import ru.practicum.shareit.user.dto.CreateUpdateUserDto;
+import ru.practicum.shareit.user.dto.UserForResponseDto;
+import ru.practicum.shareit.user.dto.UserOnlyWithIdDto;
 import ru.practicum.shareit.user.model.User;
 
-@Component
+@UtilityClass
 public class UserMapper {
-    public UserDto toUserDto(User user) {
-        if (user == null) {
-            return null;
-        }
-
-        UserDto.UserDtoBuilder userDto = UserDto.builder();
-
-        userDto.id(user.getId());
-        userDto.name(user.getName());
-        userDto.email(user.getEmail());
-
-        return userDto.build();
+    public UserForResponseDto userForResponseDto(User user) {
+        return UserForResponseDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .build();
     }
 
-    public User toUser(UserDto userDto) {
-        if (userDto == null) {
-            return null;
-        }
-
-        User user = new User();
-
-        user.setId(userDto.getId());
-        user.setName(userDto.getName());
-        user.setEmail(userDto.getEmail());
-
-        return user;
+    public User toUserFromCreateUpdateUserDto(CreateUpdateUserDto createUpdateUserDto) {
+        return User.builder()
+                .name(createUpdateUserDto.getName())
+                .email(createUpdateUserDto.getEmail())
+                .build();
     }
 
+    public UserOnlyWithIdDto userOnlyWithIdDto(User user) {
+        return UserOnlyWithIdDto.builder()
+                .id(user.getId())
+                .build();
+    }
 }

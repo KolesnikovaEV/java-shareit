@@ -3,52 +3,52 @@ package ru.practicum.shareit.validation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.ConflictException;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.dto.CreateBookingDto;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.exception.NotAvailableException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.NotValidDateException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Set;
 
 @Service
 @Slf4j
 public class ValidationService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
 
     @Autowired
-    public ValidationService(ItemRepository itemRepository, UserRepository userRepository) {
+    public ValidationService(ItemRepository itemRepository, UserRepository userRepository,
+                             BookingRepository bookingRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
-    }
-
-    public void checkUniqueEmail(User user) {
-        final String inputEmail = user.getEmail();
-        Long inputId = user.getId();
-
-        Long idByEmail = userRepository.getUserIdByEmail(inputEmail);
-        //Надо проверить уникальность почты.
-        if (idByEmail != null && !inputId.equals(idByEmail)) {
-            String message = String.format("Updating User's email is impossible, email = %s " +
-                    "belongs to User ID: %s.", inputEmail, userRepository.getUserById(idByEmail));
-            log.info(message);
-            throw new ConflictException(message);
-        }
+        this.bookingRepository = bookingRepository;
     }
 
 
     public User isExistUser(Long userId) {
-        User result = userRepository.getUserById(userId);
-        if (result == null) {
-            String error = String.format("User ID = '%d' not found.", userId);
-            log.info(error);
-            throw new NotFoundException(error);
-        }
-        return result;
+        return userRepository.findById(userId).orElseThrow(
+                () -> new NotFoundException("User not found in DB.")
+        );
+    }
+
+    public Booking isExistBooking(Long bookingId) {
+        return bookingRepository.findById(bookingId).orElseThrow(
+                () -> new NotFoundException("Booking is not found.")
+        );
+    }
+
+    public Item isExistItem(Long itemId) {
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Item is not found"));
     }
 
     public void validateUserFields(User user) {
@@ -59,7 +59,6 @@ public class ValidationService {
             log.info(error);
             throw new ValidationException(error);
         }
-        checkUniqueEmail(user);
         final String name = user.getName();
         if (name == null || name.isBlank()) {
             String error = "Name cannot be empty.";
@@ -68,20 +67,37 @@ public class ValidationService {
         }
     }
 
-    public List<Boolean> checkFieldsForUpdate(User user) {
-        List<Boolean> result = new ArrayList<>();
-        final String name = user.getName();
-        final String email = user.getEmail();
-        result.add((name != null) && !name.isBlank());
-        result.add((email != null) && !email.isBlank());
-        if (email != null) {
-            checkUniqueEmail(user);
+    public void validateBooking(CreateBookingDto createBookingDto, Item item, User booker) {
+        if (createBookingDto.getStart() == null || createBookingDto.getEnd() == null) {
+            log.info("Start booking or end can not be null");
+            throw new NotValidDateException("Start booking or end can not be null");
+        }
+        if (createBookingDto.getEnd().isBefore(createBookingDto.getStart()) ||
+                createBookingDto.getEnd().isEqual(createBookingDto.getStart())) {
+            log.info("End of booking can not be earlier or equals start of booking");
+            throw new NotValidDateException("End of booking can not be earlier or equals start of booking");
+        }
+        if (item.getOwner().equals(booker)) {
+            log.info("Owner can not book own Item");
+            throw new NotFoundException("Owner can not book own Item");
         }
 
-        if (result.contains(true)) {
-            return result;
+        if (createBookingDto.getStart().isBefore(LocalDateTime.now()) ||
+                createBookingDto.getEnd().isBefore(LocalDateTime.now())) {
+            log.info("Start or end of booking can not be in the past");
+            throw new NotValidDateException("Start or end of booking can not be in the past");
         }
-        throw new ValidationException("All fields are 'null'.");
+
+        Set<Booking> bookings = item.getBookings();
+        if (!bookings.isEmpty()) {
+            for (Booking b : bookings) {
+                if (!(b.getEnd().isBefore(createBookingDto.getStart()) ||
+                        b.getStart().isAfter(createBookingDto.getStart()))) {
+                    log.info("Item can not be booked");
+                    throw new NotAvailableException("Item can not be booked");
+                }
+            }
+        }
     }
 
     public void validateItemFields(Item item) {
@@ -103,46 +119,12 @@ public class ValidationService {
             log.info(error);
             throw new ValidationException(error);
         }
-        final Long ownerId = item.getOwner();
-        if (ownerId == null) {
-            String error = "Item ownerId cannot be empty.";
-            log.info(error);
-            throw new ValidationException(error);
-        }
     }
 
-    public List<Boolean> checkFieldsForUpdateItem(Item item) {
-        List<Boolean> result = new ArrayList<>();
-        result.add((item.getName() != null) && (!item.getName().isBlank()));
-        result.add((item.getDescription() != null) && !item.getDescription().isBlank());
-        result.add(item.getAvailable() != null);
-        for (boolean b : result) {
-            if (b) return result;
-        }
-        throw new ValidationException("All Item fields are 'null'.");
-    }
-
-    public Item isExistItem(long itemId) {
-        Item result = itemRepository.getItemById(itemId);
-        if (result == null) {
-            String error = String.format("Item ID = '%d' not found.", itemId);
-            log.info(error);
-            throw new NotFoundException(error);
-        }
-        return result;
-    }
-
-    public boolean isOwnerItem(Item item, Long ownerId) {
-        if (item == null || ownerId == null) {
-            String message = "Item or owner ID is null.";
-            log.info("Error 400. {}", message);
-            throw new ValidationException(message);
-        }
-        if (!ownerId.equals(item.getOwner())) {
-            String message = String.format("Item %s doesn't belong to User ID = %d.", item.getName(), ownerId);
-            log.info(message);
-            throw new NotFoundException(message);
-        }
-        return true;
+    public Boolean isBookingByUser(User user, Item item) {
+        LocalDateTime currentTime = LocalDateTime.now();
+        return item.getBookings()
+                .stream()
+                .anyMatch(t -> t.getBooker().equals(user) && t.getEnd().isBefore(currentTime));
     }
 }
