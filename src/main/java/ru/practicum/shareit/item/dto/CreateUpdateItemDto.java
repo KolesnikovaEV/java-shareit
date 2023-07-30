@@ -22,4 +22,6 @@ public class CreateUpdateItemDto {
 
     @NotNull(groups = CreateObject.class)
     private Boolean available;
+
+    private Long requestId;
 }

@@ -13,10 +13,12 @@ import ru.practicum.shareit.item.model.Item;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static ru.practicum.shareit.constant.Constants.orderByStartDateAsc;
+import static ru.practicum.shareit.constant.Constants.orderByStartDateDesc;
 
 @UtilityClass
 public class ItemMapper {
@@ -37,6 +39,7 @@ public class ItemMapper {
                 .description(item.getDescription())
                 .available(item.getAvailable())
                 .comments(comments)
+                .requestId(item.getRequestId())
                 .build();
     }
 
@@ -65,6 +68,7 @@ public class ItemMapper {
 
         getItemDto.setLastBooking(BookingMapper.toBookingForItemDto(lastBooking));
         getItemDto.setNextBooking(BookingMapper.toBookingForItemDto(nextBooking));
+        getItemDto.setRequestId(item.getRequestId());
 
         return getItemDto;
     }
@@ -74,6 +78,7 @@ public class ItemMapper {
                 .name(createUpdateItemDto.getName())
                 .description(createUpdateItemDto.getDescription())
                 .available(createUpdateItemDto.getAvailable())
+                .requestId(createUpdateItemDto.getRequestId())
                 .build();
     }
 
@@ -84,23 +89,11 @@ public class ItemMapper {
                 .build();
     }
 
-    private static final Comparator<Booking> orderByStartDateDesc = (a, b) -> {
-        if (a.getStart().isAfter(b.getStart())) {
-            return -1;
-        } else if (a.getStart().isBefore(b.getStart())) {
-            return 1;
-        } else {
-            return 0;
-        }
-    };
-
-    private static final Comparator<Booking> orderByStartDateAsc = (a, b) -> {
-        if (a.getStart().isAfter(b.getStart())) {
-            return 1;
-        } else if (a.getStart().isBefore(b.getStart())) {
-            return -1;
-        } else {
-            return 0;
-        }
-    };
+    public Item toItemFromItemRequest(ItemForResponseDto item) {
+        return Item.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .requestId(item.getRequestId())
+                .build();
+    }
 }

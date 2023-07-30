@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -8,6 +10,8 @@ import java.time.LocalDateTime;
 import static ru.practicum.shareit.constant.Constants.DATE_PATTERN;
 
 @Data
+@Builder
+@AllArgsConstructor
 public class CreateBookingDto {
     private Long itemId;
 

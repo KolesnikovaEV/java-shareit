@@ -46,6 +46,9 @@ public class Item {
     @ToString.Exclude
     private Set<Comment> comments;
 
+    @Column(name = "request_id")
+    private Long requestId;
+
     public User getOwner() {
         return owner.toBuilder().build();
     }

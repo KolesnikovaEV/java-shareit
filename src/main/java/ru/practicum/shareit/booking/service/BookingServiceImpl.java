@@ -2,6 +2,9 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -36,7 +39,6 @@ public class BookingServiceImpl implements BookingService {
     public BookingForResponse createBooking(Long bookerId, CreateBookingDto createBookingDto) {
 
         User bookerFromDb = validationService.isExistUser(bookerId);
-
 
         Item itemFromDB = validationService.isExistItem(createBookingDto.getItemId());
         if (!itemFromDB.getAvailable()) {
@@ -95,50 +97,53 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookingForResponse> getAllUserBookings(Long userId, String state) {
+    public List<BookingForResponse> getAllUserBookings(Long userId, String state, Integer from, Integer size) {
         User user = validationService.isExistUser(userId);
 
         final LocalDateTime nowDateTime = LocalDateTime.now();
+
+        if (from < 0 || size < 1) {
+            throw new ValidationException("Error with Pagination from or size");
+        }
+
+        Pageable pageable = PageRequest.of(from / size, size, Sort.by("start"));
+
         BookingState bookingState;
         bookingState = BookingState.valueOf(state.toUpperCase());
-        List<Booking> result;
+        List<Booking> result = Collections.emptyList();
 
         switch (bookingState) {
             case ALL: {
-                result = bookingRepository.findAllByBookerOrderByStartDesc(user);
+                result = bookingRepository.findAllByBookerOrderByStartDesc(user, pageable);
                 break;
             }
             case CURRENT: {
                 result = bookingRepository.findAllByBookerAndStartBeforeAndEndAfterOrderByStartDesc(
-                        user, nowDateTime, nowDateTime);
+                        user, nowDateTime, nowDateTime, pageable);
                 break;
             }
             case PAST: {
                 result = bookingRepository.findAllByBookerAndEndIsBeforeOrderByStartDesc(
-                        user, nowDateTime);
+                        user, nowDateTime, pageable);
                 break;
             }
             case FUTURE: {
                 result = bookingRepository.findAllByBookerAndStartIsAfterOrderByStartDesc(
-                        user, nowDateTime);
+                        user, nowDateTime, pageable);
                 break;
             }
             case WAITING: {
                 result = bookingRepository.findAllByBookerAndStatusEqualsOrderByStartDesc(
-                        user, Status.WAITING);
+                        user, Status.WAITING, pageable);
                 break;
             }
             case REJECTED: {
                 result = bookingRepository.findAllByBookerAndStatusEqualsOrderByStartDesc(
-                        user, Status.REJECTED);
+                        user, Status.REJECTED, pageable);
                 break;
             }
             case UNSUPPORTED_STATUS: {
                 throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
-            }
-            default: {
-                result = Collections.emptyList();
-                break;
             }
         }
         return result
@@ -150,50 +155,52 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookingForResponse> getAllOwnerBookings(Long userId, String state) {
+    public List<BookingForResponse> getAllOwnerBookings(Long userId, String state, Integer from, Integer size) {
         final LocalDateTime nowDateTime = LocalDateTime.now();
 
         User user = validationService.isExistUser(userId);
+        if (from < 0 || size < 1) {
+            throw new ValidationException("Error with Pagination from or size");
+        }
+
+        Pageable pageable = PageRequest.of(from / size, size, Sort.by("start"));
 
         BookingState bookingState;
         bookingState = BookingState.valueOf(state.toUpperCase());
-        List<Booking> result;
+        List<Booking> result = Collections.emptyList();
 
         switch (bookingState) {
             case ALL: {
-                result = bookingRepository.findAllByItem_OwnerOrderByStartDesc(user);
+                result = bookingRepository.findAllByItem_OwnerOrderByStartDesc(user, pageable);
                 break;
             }
             case CURRENT: {
                 result = bookingRepository.findAllByItem_OwnerAndStartIsBeforeAndEndIsAfterOrderByStartDesc(
-                        user, nowDateTime, nowDateTime);
+                        user, nowDateTime, nowDateTime, pageable);
                 break;
             }
             case PAST: {
                 result = bookingRepository.findAllByItem_OwnerAndEndIsBeforeOrderByStartDesc(
-                        user, nowDateTime);
+                        user, nowDateTime, pageable);
                 break;
             }
             case FUTURE: {
                 result = bookingRepository.findAllByItem_OwnerAndStartIsAfterOrderByStartDesc(
-                        user, nowDateTime);
+                        user, nowDateTime, pageable);
                 break;
             }
             case WAITING: {
                 result = bookingRepository.findAllByItem_OwnerAndStatusEqualsOrderByStartDesc(
-                        user, Status.WAITING);
+                        user, Status.WAITING, pageable);
                 break;
             }
             case REJECTED: {
                 result = bookingRepository.findAllByItem_OwnerAndStatusEqualsOrderByStartDesc(
-                        user, Status.REJECTED);
+                        user, Status.REJECTED, pageable);
                 break;
             }
             case UNSUPPORTED_STATUS: {
                 throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
-            }
-            default: {
-                result = Collections.emptyList();
             }
         }
         return result.stream()

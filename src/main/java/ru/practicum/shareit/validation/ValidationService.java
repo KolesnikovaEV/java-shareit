@@ -1,7 +1,7 @@
 package ru.practicum.shareit.validation;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.CreateBookingDto;
@@ -19,19 +19,12 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class ValidationService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
-
-    @Autowired
-    public ValidationService(ItemRepository itemRepository, UserRepository userRepository,
-                             BookingRepository bookingRepository) {
-        this.itemRepository = itemRepository;
-        this.userRepository = userRepository;
-        this.bookingRepository = bookingRepository;
-    }
 
 
     public User isExistUser(Long userId) {

@@ -56,7 +56,7 @@ public class ErrorHandler {
     }
 
 
-    @ExceptionHandler(Throwable.class)
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowable(Throwable e) {
         log.debug("Получен статус {} {}. Причина: {}",
