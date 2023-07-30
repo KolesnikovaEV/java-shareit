@@ -37,9 +37,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingForResponse createBooking(Long bookerId, CreateBookingDto createBookingDto) {
-
         User bookerFromDb = validationService.isExistUser(bookerId);
-
         Item itemFromDB = validationService.isExistItem(createBookingDto.getItemId());
         if (!itemFromDB.getAvailable()) {
             throw new NotAvailableException("Item can not be booked, because available = false.");

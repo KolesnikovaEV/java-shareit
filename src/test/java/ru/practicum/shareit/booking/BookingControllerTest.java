@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,14 +28,16 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BookingController.class)
 @AutoConfigureMockMvc
 public class BookingControllerTest {
     @Autowired
-    ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule());
     @MockBean
     BookingService bookingService;
     @MockBean
@@ -67,8 +70,8 @@ public class BookingControllerTest {
 
         createBookingDto = CreateBookingDto.builder()
                 .itemId(1L)
-                .start(nowPlus10Hours)
-                .end(nowPlus20Hours)
+                .start(now)
+                .end(now)
                 .build();
 
         owner = User.builder()
@@ -89,19 +92,21 @@ public class BookingControllerTest {
 
     @SneakyThrows
     @Test
-    void createBooking_whenOk() throws Exception {
+    public void createBooking_ShouldReturnBookingForResponse() {
         Long bookerId = 1L;
-        CreateBookingDto bookingDto = CreateBookingDto.builder()
-                .itemId(1L)
-                .start(LocalDateTime.now().plusDays(1))
-                .end(LocalDateTime.now().plusDays(2))
-                .build();
 
-        mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", bookerId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(bookingDto)))
-                .andExpect(status().isOk());
+        BookingForResponse bookingForResponse = BookingForResponse.builder()
+                .id(1L)
+                .start(createBookingDto.getStart())
+                .end(createBookingDto.getEnd())
+                .status(Status.WAITING)
+                .booker(UserMapper.userOnlyWithIdDto(booker))
+                .item(ItemMapper.toGetBookingDtoFromItem(item)).build();
+        when(bookingService.createBooking(bookerId, createBookingDto)).thenReturn(bookingForResponse);
+
+        BookingForResponse result = bookingService.createBooking(bookerId, createBookingDto);
+
+        assertEquals(bookingForResponse, result);
     }
 
     @SneakyThrows
