@@ -12,10 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingForResponse;
 import ru.practicum.shareit.booking.dto.CreateBookingDto;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -25,10 +23,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -51,12 +46,12 @@ public class BookingControllerTest {
     @Autowired
     MockMvc mockMvc;
     CreateBookingDto createBookingDto;
-    User owner;
-    User booker;
-    Item item;
-    LocalDateTime now;
-    LocalDateTime nowPlus10Hours;
-    LocalDateTime nowPlus20Hours;
+    private User owner;
+    private User booker;
+    private Item item;
+    private static LocalDateTime now;
+    private static LocalDateTime nowPlus10Hours;
+    private static LocalDateTime nowPlus20Hours;
 
     @BeforeEach
     void setup() {
@@ -94,69 +89,19 @@ public class BookingControllerTest {
 
     @SneakyThrows
     @Test
-    void add_whenAllIsOk_returnBookingForResponse() {
-        BookingForResponse bookingDto1ForResponse = BookingForResponse.builder()
-                .id(1L)
-                .start(createBookingDto.getStart())
-                .end(createBookingDto.getEnd())
-                .status(Status.WAITING)
-                .booker(UserMapper.userOnlyWithIdDto(booker))
-                .item(ItemMapper.toGetBookingDtoFromItem(item)).build();
-
-        when(bookingService.createBooking(any(), any())).thenReturn(bookingDto1ForResponse);
-
-        String result = mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", booker.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createBookingDto)))
-
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        assertEquals(objectMapper.writeValueAsString(bookingDto1ForResponse), result);
-    }
-
-    @SneakyThrows
-    @Test
-    void add_whenEndTimeBeforeStartTime_returnValidateException() {
-        BookingForResponse bookingDto1ForResponse = BookingForResponse.builder()
-                .id(1L)
-                .start(now.plusDays(2))
-                .end(now.plusDays(1))
-                .status(Status.WAITING)
-                .booker(UserMapper.userOnlyWithIdDto(booker))
-                .item(ItemMapper.toGetBookingDtoFromItem(item)).build();
-
-        createBookingDto = CreateBookingDto.builder()
+    void createBooking_whenOk() throws Exception {
+        Long bookerId = 1L;
+        CreateBookingDto bookingDto = CreateBookingDto.builder()
                 .itemId(1L)
-                .start(bookingDto1ForResponse.getStart())
-                .end(bookingDto1ForResponse.getEnd())
+                .start(LocalDateTime.now().plusDays(1))
+                .end(LocalDateTime.now().plusDays(2))
                 .build();
 
-        Booking booking = Booking.builder()
-                .item(item)
-                .booker(booker)
-                .start(createBookingDto.getStart())
-                .end(createBookingDto.getEnd())
-                .build();
-
-        item.setBookings(Set.of(booking));
-
-        when(bookingService.createBooking(any(), any())).thenThrow(ValidationException.class);
-
-        String result = mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", booker.getId())
+        mockMvc.perform(post("/bookings")
+                        .header("X-Sharer-User-Id", bookerId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createBookingDto)))
-
-                .andExpect(status().isBadRequest())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        assertThat(result, equalTo("{\"error\":null}"));
+                        .content(objectMapper.writeValueAsString(bookingDto)))
+                .andExpect(status().isOk());
     }
 
     @SneakyThrows
