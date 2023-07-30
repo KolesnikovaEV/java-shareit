@@ -9,7 +9,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingForResponse;
 import ru.practicum.shareit.booking.dto.CreateBookingDto;
@@ -95,7 +94,6 @@ public class BookingControllerTest {
 
     @SneakyThrows
     @Test
-    @DirtiesContext
     void add_whenAllIsOk_returnBookingForResponse() {
         BookingForResponse bookingDto1ForResponse = BookingForResponse.builder()
                 .id(1L)

@@ -53,7 +53,6 @@ class BookingServiceTest {
 
     @BeforeAll
     static void beforeAll() {
-        Pageable page = null;
         start = LocalDateTime.now();
         end = LocalDateTime.now();
     }
