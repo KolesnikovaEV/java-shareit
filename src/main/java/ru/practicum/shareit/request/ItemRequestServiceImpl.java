@@ -54,9 +54,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     @Transactional(readOnly = true)
     public List<ItemRequestForResponse> getAllRequests(Long userId, Integer from, Integer size) {
-        if (from < 0 || size < 1) {
-            throw new ValidationException("Error with Pagination from or size");
-        }
         validationService.isExistUser(userId);
         Pageable pageable = PageRequest.of(from / size, size);
         List<ItemRequest> itemRequests =

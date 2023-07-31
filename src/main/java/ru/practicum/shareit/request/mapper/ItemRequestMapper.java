@@ -13,15 +13,7 @@ import java.util.stream.Collectors;
 public class ItemRequestMapper {
     public ItemRequest fromItemRequestDto(ItemRequestDto itemRequestDto) {
         ItemRequest itemRequest = new ItemRequest();
-
-        itemRequest.setId(itemRequestDto.getId());
         itemRequest.setDescription(itemRequestDto.getDescription());
-        itemRequest.setCreated(itemRequestDto.getCreated());
-        if (itemRequestDto.getItems() != null) {
-            itemRequest.setItems(itemRequestDto.getItems().stream()
-                    .map(ItemMapper::toItemFromItemRequest).collect(Collectors.toList()));
-        }
-
         return itemRequest;
     }
 

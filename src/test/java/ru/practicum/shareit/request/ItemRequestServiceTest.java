@@ -232,16 +232,6 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    public void testGetAllRequests_InvalidPaginationParams_ThrowsValidationException() {
-        Long userId = 1L;
-        Integer from = -1;
-        Integer size = 0;
-
-        assertThrows(ValidationException.class, () -> itemRequestService.getAllRequests(userId, from, size));
-        verify(validationService, never()).isExistUser(userId);
-    }
-
-    @Test
     public void testGetAllRequests_ValidPaginationParams_ReturnsItemRequestForResponseList() {
         Long userId = 1L;
         Integer from = 0;

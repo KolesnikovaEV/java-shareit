@@ -8,7 +8,6 @@ import ru.practicum.shareit.booking.dto.CreateBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.NotAvailableException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.NotValidDateException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -61,24 +60,9 @@ public class ValidationService {
     }
 
     public void validateBooking(CreateBookingDto createBookingDto, Item item, User booker) {
-        if (createBookingDto.getStart() == null || createBookingDto.getEnd() == null) {
-            log.info("Start booking or end can not be null");
-            throw new NotValidDateException("Start booking or end can not be null");
-        }
-        if (createBookingDto.getEnd().isBefore(createBookingDto.getStart()) ||
-                createBookingDto.getEnd().isEqual(createBookingDto.getStart())) {
-            log.info("End of booking can not be earlier or equals start of booking");
-            throw new NotValidDateException("End of booking can not be earlier or equals start of booking");
-        }
         if (item.getOwner().equals(booker)) {
             log.info("Owner can not book own Item");
             throw new NotFoundException("Owner can not book own Item");
-        }
-
-        if (createBookingDto.getStart().isBefore(LocalDateTime.now()) ||
-                createBookingDto.getEnd().isBefore(LocalDateTime.now())) {
-            log.info("Start or end of booking can not be in the past");
-            throw new NotValidDateException("Start or end of booking can not be in the past");
         }
 
         Set<Booking> bookings = item.getBookings();

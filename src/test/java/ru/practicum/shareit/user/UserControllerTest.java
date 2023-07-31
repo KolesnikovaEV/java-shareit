@@ -10,12 +10,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.controller.UserController;
+import ru.practicum.shareit.user.dto.CreateUpdateUserDto;
 import ru.practicum.shareit.user.dto.UserForResponseDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.service.UserService;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,6 +44,7 @@ public class UserControllerTest {
 
     User user;
     UserForResponseDto userDto;
+    CreateUpdateUserDto createUpdateUserDto;
 
     @BeforeEach
     void setUp() {
@@ -52,6 +56,10 @@ public class UserControllerTest {
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
+                .build();
+        createUpdateUserDto = CreateUpdateUserDto.builder()
+                .email("invalid")
+                .name("")
                 .build();
 
         assertEquals(user.getId(), userDto.getId());
@@ -124,12 +132,47 @@ public class UserControllerTest {
         assertEquals(objectMapper.writeValueAsString(userDto), result);
     }
 
-    @SneakyThrows   //позволяет "бесшумно" выбрасывать проверяемые исключения, не объявляя их явно в условии throws.
+    @SneakyThrows
     @Test
     void deleteUser_ThenReturnOk() {
         mockMvc.perform(delete("/users/{id}", user.getId()))
 
                 .andExpect(status().isOk());
         verify(userService, times(1)).removeUser(user.getId());
+    }
+
+    @SneakyThrows
+    @Test
+    void getAllUsersFromStorage_WhenNoUsers_ThenReturnEmptyList() {
+        when(userService.getAllUsers())
+                .thenReturn(Collections.emptyList());
+
+        String result = mockMvc.perform(get("/users"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        assertEquals("[]", result);
+    }
+
+    @SneakyThrows
+    @Test
+    void getUserById_WithInvalidId_ThenReturn404Error() {
+        when(userService.getUserById(any()))
+                .thenThrow(new NotFoundException("User is not found"));
+
+        mockMvc.perform(get("/users/{userId}", 1L))
+                .andExpect(status().isNotFound());
+    }
+
+    @SneakyThrows
+    @Test
+    void deleteUser_WithInvalidId_ThenReturn404Error() {
+        doThrow(new NotFoundException("User is not found"))
+                .when(userService).removeUser(any());
+
+        mockMvc.perform(delete("/users/{id}", 1L))
+                .andExpect(status().isNotFound());
     }
 }

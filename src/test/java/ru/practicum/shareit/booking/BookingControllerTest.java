@@ -1,8 +1,8 @@
 package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,16 +11,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.practicum.shareit.booking.dto.BookingForResponse;
 import ru.practicum.shareit.booking.dto.CreateBookingDto;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,32 +35,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class BookingControllerTest {
     @Autowired
-    private final ObjectMapper objectMapper = new ObjectMapper()
-            .registerModule(new JavaTimeModule());
-    @MockBean
-    BookingService bookingService;
-    @MockBean
-    ItemRepository itemRepository;
-    @MockBean
-    UserRepository userRepository;
-    @MockBean
-    BookingRepository bookingRepository;
+    private MockMvc mockMvc;
     @Autowired
-    MockMvc mockMvc;
-    CreateBookingDto createBookingDto;
+    private ObjectMapper objectMapper;
+    @MockBean
+    private BookingService bookingService;
+    private CreateBookingDto createBookingDto;
     private User owner;
     private User booker;
     private Item item;
-    private static LocalDateTime now;
-    private static LocalDateTime nowPlus10Hours;
-    private static LocalDateTime nowPlus20Hours;
+    private static LocalDateTime start;
+    private static LocalDateTime end;
+
+    @BeforeAll
+    static void beforeAll() {
+        start = LocalDateTime.now();
+        end = LocalDateTime.now();
+    }
 
     @BeforeEach
     void setup() {
-        now = LocalDateTime.now();
-        nowPlus10Hours = LocalDateTime.now().plusHours(10);
-        nowPlus20Hours = LocalDateTime.now().plusHours(20);
-
         booker = User.builder()
                 .id(101L)
                 .name("Name booker")
@@ -70,8 +63,8 @@ public class BookingControllerTest {
 
         createBookingDto = CreateBookingDto.builder()
                 .itemId(1L)
-                .start(now)
-                .end(now)
+                .start(start)
+                .end(end)
                 .build();
 
         owner = User.builder()
@@ -212,5 +205,42 @@ public class BookingControllerTest {
                 .getContentAsString();
 
         assertEquals(objectMapper.writeValueAsString(List.of(bookingDto1ForResponse)), result);
+    }
+
+    @SneakyThrows
+    @Test
+    public void createBooking_WithInvalidData_ShouldReturn400Error() {
+        createBookingDto.setStart(start.plusDays(5));
+        createBookingDto.setEnd(end.plusDays(2));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/bookings")
+                        .content(objectMapper.writeValueAsString(createBookingDto))
+                        .contentType("application/json")
+                        .header("X-Sharer-User-Id", "12345"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @SneakyThrows
+    @Test
+    public void getAllUserBookings_WithInvalidData_ShouldReturn400Error() {
+        mockMvc.perform(MockMvcRequestBuilders.get("/bookings")
+                        .header("X-Sharer-User-Id", booker.getId())
+                        .param("state", "ALL")
+                        .param("from", "-1")
+                        .param("size", "10")
+                        .contentType("application/json"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @SneakyThrows
+    @Test
+    public void getAllOwnerBookings_WithInvalidData_ShouldReturn400Error() {
+        mockMvc.perform(MockMvcRequestBuilders.get("/bookings/owner")
+                        .header("X-Sharer-User-Id", owner.getId())
+                        .param("state", "ALL")
+                        .param("from", "-1")
+                        .param("size", "10")
+                        .contentType("application/json"))
+                .andExpect(status().isBadRequest());
     }
 }

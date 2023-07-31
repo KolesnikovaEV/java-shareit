@@ -334,22 +334,6 @@ class BookingServiceTest {
     }
 
     @Test
-    public void testGetAllUserBookings_InvalidPagination() {
-        Long userId = 1L;
-        String state = "CURRENT";
-        Integer from = -1;
-        Integer size = 10;
-
-        user.setId(userId);
-
-        when(validationService.isExistUser(userId)).thenReturn(user);
-
-        Assertions.assertThrows(ValidationException.class, () -> {
-            bookingService.getAllUserBookings(userId, state, from, size);
-        });
-    }
-
-    @Test
     public void testGetAllUserBookings_InvalidState() {
         Long userId = 1L;
         String state = "UNSUPPORTED_STATUS";
@@ -641,22 +625,6 @@ class BookingServiceTest {
         assertEquals(2, result.size());
         assertEquals(1L, result.get(0).getId());
         assertEquals(2L, result.get(1).getId());
-    }
-
-    @Test
-    public void testGetAllAllOwnerBookings_InvalidPagination() {
-        Long userId = 1L;
-        String state = "CURRENT";
-        Integer from = -1;
-        Integer size = 10;
-
-        user.setId(userId);
-
-        when(validationService.isExistUser(userId)).thenReturn(user);
-
-        Assertions.assertThrows(ValidationException.class, () -> {
-            bookingService.getAllOwnerBookings(userId, state, from, size);
-        });
     }
 
     @Test

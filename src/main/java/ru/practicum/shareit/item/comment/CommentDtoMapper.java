@@ -4,7 +4,7 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class CommentDtoMapper {
-    public static CommentDto toCommentDto(Comment comment) {
+    public CommentDto toCommentDto(Comment comment) {
         return CommentDto.builder()
                 .id(comment.getId())
                 .text(comment.getText())
@@ -13,7 +13,7 @@ public class CommentDtoMapper {
                 .build();
     }
 
-    public static Comment toCommentFromCreateCommentDto(CreateCommentDto commentDto) {
+    public Comment toCommentFromCreateCommentDto(CreateCommentDto commentDto) {
         return Comment.builder()
                 .text(commentDto.getText())
                 .build();

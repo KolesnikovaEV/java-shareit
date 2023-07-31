@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.validation.StartBeforeEndDateValid;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +15,7 @@ import static ru.practicum.shareit.constant.Constants.DATE_PATTERN;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@StartBeforeEndDateValid
 public class CreateBookingDto {
     private Long itemId;
 

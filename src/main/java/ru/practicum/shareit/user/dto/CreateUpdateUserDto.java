@@ -9,6 +9,7 @@ import ru.practicum.shareit.validation.UpdateObject;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @Data
 @Builder
@@ -16,9 +17,11 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class CreateUpdateUserDto {
     @NotBlank(groups = {CreateObject.class}, message = "Name cannot be blank")
+    @Size(max = 255)
     private String name;
     @NotBlank(groups = {CreateObject.class}, message = "Email cannot be blank")
     @Email(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", groups = {CreateObject.class, UpdateObject.class},
             message = "Invalid email address")
+    @Size(max = 512)
     private String email;
 }

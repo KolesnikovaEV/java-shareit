@@ -9,13 +9,11 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * TODO Sprint add-item-requests.
- */
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "requests", schema = "public")
-@EqualsAndHashCode(exclude = {"requester", "created"})
+@EqualsAndHashCode(exclude = {"description", "requester", "created", "items"})
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)

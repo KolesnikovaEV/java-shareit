@@ -100,10 +100,6 @@ public class BookingServiceImpl implements BookingService {
 
         final LocalDateTime nowDateTime = LocalDateTime.now();
 
-        if (from < 0 || size < 1) {
-            throw new ValidationException("Error with Pagination from or size");
-        }
-
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("start"));
 
         BookingState bookingState;
@@ -157,9 +153,6 @@ public class BookingServiceImpl implements BookingService {
         final LocalDateTime nowDateTime = LocalDateTime.now();
 
         User user = validationService.isExistUser(userId);
-        if (from < 0 || size < 1) {
-            throw new ValidationException("Error with Pagination from or size");
-        }
 
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("start"));
 

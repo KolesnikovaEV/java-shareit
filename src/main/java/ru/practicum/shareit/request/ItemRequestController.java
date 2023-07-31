@@ -9,16 +9,16 @@ import ru.practicum.shareit.request.dto.ItemRequestForResponse;
 import ru.practicum.shareit.validation.CreateObject;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 import static ru.practicum.shareit.constant.Constants.USER_ID_HEADER;
 
-/**
- * TODO Sprint add-item-requests.
- */
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
+@Validated
 @Slf4j
 public class ItemRequestController {
     private final ItemRequestService itemRequestService;
@@ -40,8 +40,8 @@ public class ItemRequestController {
     @GetMapping("/all")
     public List<ItemRequestForResponse> getAllRequests(
             @RequestHeader(USER_ID_HEADER) Long requesterId,
-            @RequestParam(name = "from", defaultValue = "0") Integer from,
-            @RequestParam(name = "size", defaultValue = "20") Integer size) {
+            @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+            @Positive @RequestParam(name = "size", defaultValue = "20") Integer size) {
         log.info("Getting a list of Item Requests for All");
         return itemRequestService.getAllRequests(requesterId, from, size);
     }

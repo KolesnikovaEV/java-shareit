@@ -12,7 +12,6 @@ import ru.practicum.shareit.booking.dto.CreateBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.NotAvailableException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.NotValidDateException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -212,22 +211,6 @@ public class ValidationServiceTest {
     }
 
     @Test
-    public void testValidateBooking_StartAndEndNull_ThrowsNotValidDateException() {
-        createBookingDto.setEnd(null);
-        createBookingDto.setStart(null);
-
-        assertThrows(NotValidDateException.class, () -> validationService.validateBooking(createBookingDto, item, user1));
-    }
-
-    @Test
-    public void testValidateBooking_EndBeforeStart_ThrowsNotValidDateException() {
-        createBookingDto.setStart(LocalDateTime.now());
-        createBookingDto.setEnd(LocalDateTime.now().minusHours(1));
-
-        assertThrows(NotValidDateException.class, () -> validationService.validateBooking(createBookingDto, item, user1));
-    }
-
-    @Test
     public void testValidateBooking_OwnerBookingOwnItem_ThrowsNotFoundException() {
         createBookingDto.setStart(LocalDateTime.now());
         createBookingDto.setEnd(LocalDateTime.now().plusHours(1));
@@ -235,14 +218,6 @@ public class ValidationServiceTest {
         item.setOwner(user1);
 
         assertThrows(NotFoundException.class, () -> validationService.validateBooking(createBookingDto, item, user1));
-    }
-
-    @Test
-    public void testValidateBooking_StartAndEndInPast_ThrowsNotValidDateException() {
-        createBookingDto.setStart(LocalDateTime.now().minusHours(1));
-        createBookingDto.setEnd(LocalDateTime.now().minusMinutes(30));
-
-        assertThrows(NotValidDateException.class, () -> validationService.validateBooking(createBookingDto, item, user2));
     }
 
     @Test

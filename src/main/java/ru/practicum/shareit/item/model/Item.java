@@ -10,7 +10,8 @@ import javax.validation.constraints.NotBlank;
 import java.util.Set;
 
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "items", schema = "public")
 @EqualsAndHashCode(exclude = {"name", "description", "available", "owner"})
