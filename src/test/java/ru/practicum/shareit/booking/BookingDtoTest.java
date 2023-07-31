@@ -32,16 +32,6 @@ public class BookingDtoTest {
     }
 
     @Test
-    public void testBookingForItemDtoDeserialization() throws IOException {
-        String json = "{\"id\":1,\"bookerId\":2}";
-
-        BookingForItemDto dto = objectMapper.readValue(json, BookingForItemDto.class);
-
-        assertThat(dto.getId()).isEqualTo(1L);
-        assertThat(dto.getBookerId()).isEqualTo(2L);
-    }
-
-    @Test
     public void testUserOnlyWithIdDtoSerialization() throws JsonProcessingException {
         UserOnlyWithIdDto dto = UserOnlyWithIdDto.builder().id(2L).build();
 

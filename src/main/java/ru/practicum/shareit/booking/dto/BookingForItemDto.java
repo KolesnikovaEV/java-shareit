@@ -7,8 +7,6 @@ import lombok.Setter;
 
 @Data
 @Builder
-@Getter
-@Setter
 public class BookingForItemDto {
     private Long id;
     private Long bookerId;

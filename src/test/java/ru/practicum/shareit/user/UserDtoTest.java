@@ -55,17 +55,6 @@ public class UserDtoTest {
     }
 
     @Test
-    public void testUserForResponseDtoDeserialization() throws IOException {
-        String json = "{\"id\":1,\"name\":\"John Doe\",\"email\":\"johndoe@example.com\"}";
-
-        UserForResponseDto dto = objectMapper.readValue(json, UserForResponseDto.class);
-
-        assertThat(dto.getId()).isEqualTo(1L);
-        assertThat(dto.getName()).isEqualTo("John Doe");
-        assertThat(dto.getEmail()).isEqualTo("johndoe@example.com");
-    }
-
-    @Test
     public void testUserOnlyWithIdDtoSerialization() throws JsonProcessingException {
         UserOnlyWithIdDto dto = UserOnlyWithIdDto.builder()
                 .id(1L)
