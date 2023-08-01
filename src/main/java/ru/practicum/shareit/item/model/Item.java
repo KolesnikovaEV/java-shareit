@@ -10,7 +10,8 @@ import javax.validation.constraints.NotBlank;
 import java.util.Set;
 
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "items", schema = "public")
 @EqualsAndHashCode(exclude = {"name", "description", "available", "owner"})
@@ -45,6 +46,9 @@ public class Item {
     @JoinColumn(name = "item_id")
     @ToString.Exclude
     private Set<Comment> comments;
+
+    @Column(name = "request_id")
+    private Long requestId;
 
     public User getOwner() {
         return owner.toBuilder().build();

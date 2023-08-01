@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 
 import static ru.practicum.shareit.constant.Constants.DATE_PATTERN;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "feedbacks", schema = "public")
 @EqualsAndHashCode(exclude = {"text", "item", "author"})

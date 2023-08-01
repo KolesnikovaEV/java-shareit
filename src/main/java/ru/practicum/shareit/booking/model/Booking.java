@@ -7,7 +7,8 @@ import ru.practicum.shareit.user.model.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "bookings", schema = "public")
 @EqualsAndHashCode(exclude = {"start", "end", "item", "booker", "status"})

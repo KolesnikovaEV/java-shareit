@@ -69,7 +69,6 @@ public class UserServiceImpl implements UserService {
         } catch (DataIntegrityViolationException e) {
             throw new ConflictException("User cannot be updated");
         }
-
     }
 
     @Override

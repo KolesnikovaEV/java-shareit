@@ -57,37 +57,27 @@ public class ItemServiceImpl implements ItemService {
 
         Item newItem = ItemMapper.toGetItemFromCreateUpdateItemDto(item);
         newItem.setOwner(owner);
-        validationService.validateItemFields(newItem);
-
         log.info("New item {} created", newItem.getId());
         return ItemMapper.toGetItemDtoFromItem(itemRepository.save(newItem));
-
     }
 
     @Override
     public ItemForResponseDto updateItem(Long ownerId, Long itemId, CreateUpdateItemDto updateItem) {
         User user = validationService.isExistUser(ownerId);
-
         Item item = validationService.isExistItem(itemId);
-
         if (!item.getOwner().equals(user)) {
             throw new NotFoundException(
-                    String.format("User with ID = %s does not have Item with ID = %s", user.getId(), item.getId())
-            );
+                    String.format("User with ID = %s does not have Item with ID = %s", user.getId(), item.getId()));
         }
-
         if (updateItem.getName() != null && !updateItem.getName().isBlank()) {
             item.setName(updateItem.getName());
         }
-
         if (updateItem.getDescription() != null && !updateItem.getDescription().isBlank()) {
             item.setDescription(updateItem.getDescription());
         }
-
         if (updateItem.getAvailable() != null) {
             item.setAvailable(updateItem.getAvailable());
         }
-
         return ItemMapper.toGetItemDtoFromItem(itemRepository.save(item));
     }
 
@@ -96,7 +86,6 @@ public class ItemServiceImpl implements ItemService {
     public ItemForResponseDto getItemById(Long ownerId, Long itemId) {
         validationService.isExistUser(ownerId);
         Item existItem = validationService.isExistItem(itemId);
-
         log.info("Item is shown");
         if (Objects.equals(existItem.getOwner().getId(), ownerId)) {
             return ItemMapper.toItemWIthBookingDto(existItem);
@@ -154,5 +143,4 @@ public class ItemServiceImpl implements ItemService {
                     "User with ID = %s has not booked Item with ID = %s", bookerId, itemId));
         }
     }
-
 }
