@@ -26,10 +26,10 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createUser(@RequestBody @Validated(CreateObject.class)
+    public ResponseEntity<Object> createUser(@RequestBody @Valid @Validated(CreateObject.class)
                                              CreateUpdateUserDto createUpdateUserDto) {
         log.info("Creating User");
-        return ResponseEntity.ok(userClient.createUser(createUpdateUserDto));
+        return userClient.createUser(createUpdateUserDto);
     }
 
     @PatchMapping("/{userId}")
@@ -37,7 +37,7 @@ public class UserController {
                              @Validated(UpdateObject.class) @Valid
                              @RequestBody CreateUpdateUserDto userToUpdate) {
         log.info("Updating User: {}", userId);
-        return ResponseEntity.ok(userClient.updateUser(userId, userToUpdate));
+        return userClient.updateUser(userId, userToUpdate);
     }
 
     @GetMapping("/{userId}")
