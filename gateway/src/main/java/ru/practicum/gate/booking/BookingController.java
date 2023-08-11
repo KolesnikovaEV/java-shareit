@@ -29,7 +29,7 @@ public class BookingController {
                                                 @RequestBody @Validated(CreateObject.class)
                                                 @Valid CreateBookingDto bookingDto) {
         log.info("Creating booking");
-        //checkStartAndEndTimes(bookingDto);
+        checkStartAndEndTimes(bookingDto);
         return bookingClient.createBooking(bookerId, bookingDto);
     }
 
