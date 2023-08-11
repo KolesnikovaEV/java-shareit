@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @StartBeforeEndDateValid
 public class CreateBookingDto {
+    @NotNull
     private Long itemId;
 
     @FutureOrPresent(groups = {CreateObject.class})
