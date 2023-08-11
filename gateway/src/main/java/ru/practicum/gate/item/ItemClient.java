@@ -33,7 +33,7 @@ public class ItemClient extends BaseClient {
         return get("/", ownerId);
     }
 
-    public ResponseEntity<Object> getItemById(Long itemId, Long ownerId) {
+    public ResponseEntity<Object> getItemById(Long ownerId, Long itemId) {
         return get("/" + itemId, ownerId);
     }
 
@@ -52,7 +52,7 @@ public class ItemClient extends BaseClient {
         return post("/" + userId + "/comment", itemId, commentDto);
     }
 
-    public ResponseEntity<Object> deleteItem(Long userId, Long itemId) {
-        return delete("/" + userId, itemId);
+    public void deleteItem(Long userId, Long itemId) {
+        delete("/" + userId, itemId);
     }
 }
