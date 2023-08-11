@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.gate.constants.Constants;
+import ru.practicum.gate.validation.CreateObject;
 import ru.practicum.gate.validation.StartBeforeEndDateValid;
 
 import javax.validation.constraints.Future;
@@ -21,7 +22,7 @@ import java.time.LocalDateTime;
 public class CreateBookingDto {
     private Long itemId;
 
-    @FutureOrPresent
+    @FutureOrPresent(groups = {CreateObject.class})
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_PATTERN)
     private LocalDateTime start;
