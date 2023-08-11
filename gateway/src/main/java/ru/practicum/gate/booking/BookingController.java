@@ -27,9 +27,9 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<Object> createBooking(@RequestHeader(value = Constants.USER_ID_HEADER) Long bookerId,
                                                 @RequestBody @Validated(CreateObject.class)
-                                                @Valid ru.practicum.gate.booking.dto.CreateBookingDto bookingDto) {
+                                                @Valid CreateBookingDto bookingDto) {
         log.info("Creating booking");
-        checkStartAndEndTimes(bookingDto);
+        //checkStartAndEndTimes(bookingDto);
         return bookingClient.createBooking(bookerId, bookingDto);
     }
 
