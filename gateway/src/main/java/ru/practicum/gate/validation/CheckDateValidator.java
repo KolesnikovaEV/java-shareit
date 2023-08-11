@@ -15,6 +15,7 @@ public class CheckDateValidator implements ConstraintValidator<ru.practicum.gate
     public boolean isValid(CreateBookingDto createBookingDto, ConstraintValidatorContext constraintValidatorContext) {
         LocalDateTime start = createBookingDto.getStart();
         LocalDateTime end = createBookingDto.getEnd();
+        LocalDateTime now = LocalDateTime.now();
         if (start == null || end == null) {
             return false;
         }
@@ -24,6 +25,9 @@ public class CheckDateValidator implements ConstraintValidator<ru.practicum.gate
         }
         if (createBookingDto.getStart().isBefore(LocalDateTime.now()) ||
                 createBookingDto.getEnd().isBefore(LocalDateTime.now())) {
+            return false;
+        }
+        if (start.isBefore(now) || end.isBefore(now)) {
             return false;
         }
         return start.isBefore(end);
