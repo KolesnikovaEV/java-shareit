@@ -49,7 +49,7 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> createComment(Long itemId, Long userId, CreateCommentDto commentDto) {
-        return post("/" + userId + "/comment", itemId, commentDto);
+        return post("/" + itemId + "/comment", userId, commentDto);
     }
 
     public void deleteItem(Long userId, Long itemId) {
