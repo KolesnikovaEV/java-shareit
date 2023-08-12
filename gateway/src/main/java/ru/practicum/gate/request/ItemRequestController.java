@@ -40,7 +40,7 @@ public class ItemRequestController {
     public ResponseEntity<Object> getAllRequests(
             @RequestHeader(Constants.USER_ID_HEADER) Long requesterId,
             @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-            @Positive @RequestParam(name = "size", defaultValue = "20") Integer size) {
+            @Positive @RequestParam Integer size) {
         log.info("Getting a list of Item Requests for All");
         return itemRequestClient.getAllRequests(requesterId, from, size);
     }

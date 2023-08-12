@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
 public class CreateBookingDto {
     private Long itemId;
 
-    //@FutureOrPresent(groups = {CreateObject.class})
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_PATTERN)
     private LocalDateTime start;
